@@ -1,0 +1,24 @@
+
+version: '3.8'
+
+networks:
+  my_network:
+    driver: bridge
+
+services:
+
+  mongo-srv:
+    image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: auth
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    env_file:
+      - ./app/.env
+    networks:
+      - my_network
+
+volumes:
+  mongo-data:
