@@ -1,6 +1,6 @@
 
 import mongoose from 'mongoose'
-import { UserModel, UserDoc, AuthenticationService } from '@shoppingapp/common'
+import { UserModel, UserDoc, AuthenticationService } from '@fadedreams7pcplatform/common'
 
 const schema = new mongoose.Schema({
   email: {
