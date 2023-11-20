@@ -11,6 +11,9 @@ import cookieSession from 'cookie-session';
 import { errorHandler, currentUser } from '@fadedreams7pcplatform/common';
 
 import { authRouters } from './auth/auth.routers';
+import { providerRouters } from './provider/provider.routers';
+
+//import multer from 'multer';
 
 export class AppModule {
   constructor(public app: Application = express()) {
@@ -21,6 +24,7 @@ export class AppModule {
       optionsSuccessStatus: 200
     }))
 
+    //this.app.use(multer().any());
     app.use(urlencoded({ extended: false }))
     app.use(json())
     app.use(cookieSession({
@@ -53,6 +57,9 @@ export class AppModule {
     this.app.use(currentUser(process.env.JWT_KEY!))
     this.app.use(errorHandler)
     this.app.use(authRouters)
+    this.app.use(providerRouters)
+
+
 
     const PORT = process.env.PORT || 8080
 

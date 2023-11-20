@@ -13,12 +13,22 @@ export class ItemService {
   }
 
   async create(createItemDto: CreateItemDto) {
+    var files = createItemDto.files;
+    if (!Array.isArray(files) || files.length === 0) {
+      throw new Error('No files provided');
+    }
+    const imagePaths = files.map((file) => {
+      const fileName = `your_custom_prefix_${Date.now()}_${file.originalname}`;
+      fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
+      return fileName;
+    });
     const images = this.generateItemImages(createItemDto.files);
     const item = new this.itemModel({
       title: createItemDto.title,
       price: createItemDto.price,
       user: createItemDto.userId,
-      images: [{ src: '' }]
+      //images: [{ src: '' }]
+      images: images
     })
 
     return await item.save()
@@ -38,10 +48,10 @@ export class ItemService {
     }
 
     return images.map((file: Express.Multer.File) => {
-      let srcObj = { src: this.generateBase64Url(file.mimetype, fs.readFileSync(path.join(uploadDir + file.filename))) }
-      fs.unlink(path.join(uploadDir + file.filename), () => { })
-      return srcObj
-    })
+      let srcObj = { src: this.generateBase64Url(file.mimetype, file.buffer) };
+      return srcObj;
+    });
   }
 
 }
+export const itemService = new ItemService(Item)
