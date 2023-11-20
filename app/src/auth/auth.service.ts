@@ -20,5 +20,18 @@ export class AuthService {
 
     return { jwt };
   }
+
+  async signin(signinDto: AuthDto) {
+    const user = await this.userService.findOneByEmail(signinDto.email);
+    if (!user) return { message: "wrong credentials" }
+
+    const samePwd = this.authenticationService.pwdCompare(user.password, signinDto.password);
+
+    if (!samePwd) return { message: "wrong credentials" }
+
+    const jwt = this.authenticationService.generateJwt({ email: user.email, userId: user.id }, process.env.JWT_KEY!);
+
+    return { jwt }
+  }
 }
 export const authService = new AuthService(userService, new AuthenticationService())

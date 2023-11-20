@@ -21,5 +21,14 @@ const schema = new mongoose.Schema({
   }
 })
 
+schema.pre('save', async function(done) {
+  const authenticationService = new AuthenticationService()
+  if (this.isModified('password') || this.isNew) {
+    const hashedPwd = await authenticationService.pwdToHash(this.get('password'));
+    this.set('password', hashedPwd);
+  }
+
+  done()
+})
 
 export const User = mongoose.model<UserDoc, UserModel>('User', schema);
