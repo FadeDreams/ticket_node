@@ -34,4 +34,6 @@ export class AuthService {
     return { jwt }
   }
 }
+
+
 export const authService = new AuthService(userService, new AuthenticationService())
