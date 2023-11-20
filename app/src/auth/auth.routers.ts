@@ -29,3 +29,5 @@ router.post('/signin', async (req: Request, res: Response, next: NextFunction) =
 router.get('/current-user', currentUser(process.env.JWT_KEY!), async (req: Request, res: Response, next: NextFunction) => {
   res.status(200).send(req.currentUser)
 })
+
+export { router as authRouters }

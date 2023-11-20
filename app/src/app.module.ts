@@ -6,10 +6,11 @@ dotenv.config();
 import cors from 'cors';
 import mongoose from 'mongoose';
 
-
 import { json, urlencoded } from 'body-parser';
 import cookieSession from 'cookie-session';
 import { errorHandler, currentUser } from '@fadedreams7pcplatform/common';
+
+import { authRouters } from './auth/auth.routers';
 
 export class AppModule {
   constructor(public app: Application = express()) {
@@ -51,6 +52,7 @@ export class AppModule {
 
     this.app.use(currentUser(process.env.JWT_KEY!))
     this.app.use(errorHandler)
+    this.app.use(authRouters)
 
     const PORT = process.env.PORT || 8080
 

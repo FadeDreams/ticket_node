@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "compile": "tsc && node ./dist/src/main.js",
-    "start:dev": "nodemon -e ts --exec \"npm run compile\" ",
+    "start:dev": "ts-node-dev src/main.ts",
     "start": "node ./dist/src/main.js"
   },
   "keywords": [],
@@ -28,6 +28,7 @@
     "mongoose": "^8.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "ts-node-dev": "^2.0.0"
   }
 }
