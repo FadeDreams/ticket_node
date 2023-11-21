@@ -7,9 +7,18 @@ export class ProviderService {
     public itemService: ItemService
   ) { }
 
-  async addItem(createItemDto: CreateItemDto) {
-    return await this.itemService.create(createItemDto)
+  async addItem(createItem: CreateItemDto) {
+    return await this.itemService.create(createItem)
   }
-}
 
+  async updateItem(updateItem: UpdateItemDto) {
+    const item = await this.itemService.getOneById(updateItem.itemId);
+    if (!item) return new BadRequestError('item not found!')
+    if (item.user.toString() !== updateItem.userId) {
+      return new NotAuthorizedError()
+    }
+    return await this.itemService.updateItem(updateItem);
+  }
+
+}
 export const providerService = new ProviderService(itemService)

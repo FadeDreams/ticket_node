@@ -31,6 +31,17 @@ router.post('/item/new', requireAuth, multipeFilesMiddleware, async (req: Reques
   res.status(201).send(item)
 })
 
+router.post('/item/:id/update', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const { title, price } = req.body;
+
+  const result = await providerService.updateItem({ title, price, userId: req.currentUser!.userId, itemId: id })
+
+  if (result instanceof CustomError) return next(result);
+
+  res.status(200).send(result)
+})
+
 
 
 export { router as providerRouters }

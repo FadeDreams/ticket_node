@@ -24,24 +24,9 @@ export class ItemService {
     return await item.save()
   }
 
-  async updateItem(updateItemDto: UpdateItemDto) {
-    return await this.itemModel.findOneAndUpdate({ _id: updateItemDto.itemId },
-      { $set: { title: updateItemDto.title, price: updateItemDto.price } }, { new: true })
-  }
-
-  //async deleteItem(deleteItemDto: DeleteItemDto) {
-  //return await this.itemModel.findOneAndRemove({ _id: deleteItemDto.itemId })
-  //}
-
-  async addImages(addImagesDto: AddImagesDto) {
-    const images = this.generateItemImages(addImagesDto.files);
-    return await this.itemModel.findOneAndUpdate({ _id: addImagesDto.itemId },
-      { $push: { images: { $each: images } } }, { new: true })
-  }
-
-  async deleteImages(deleteImagesDto: DeleteImagesDto) {
-    return await this.itemModel.findOneAndUpdate({ _id: deleteImagesDto.itemId },
-      { $pull: { images: { _id: { $in: deleteImagesDto.imagesIds } } } }, { new: true })
+  async updateItem(updateItem: UpdateItemDto) {
+    return await this.itemModel.findOneAndUpdate({ _id: updateItem.itemId },
+      { $set: { title: updateItem.title, price: updateItem.price } }, { new: true })
   }
 
   generateBase64Url(contentType: string, buffer: Buffer) {
