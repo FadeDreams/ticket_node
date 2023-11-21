@@ -30,5 +30,24 @@ export class ProviderService {
     return await this.itemService.deleteItem(deleteItem)
   }
 
+  async addItemImages(addImagesDto: AddImagesDto) {
+    const item = await this.itemService.getOneById(addImagesDto.itemId);
+    if (!item) return new BadRequestError('item not found!');
+    if (item.user.toString() !== addImagesDto.userId) {
+      return new NotAuthorizedError()
+    }
+
+    return await this.itemService.addImages(addImagesDto)
+  }
+
+  async deleteItemImages(deleteImages: DeleteImagesDto) {
+    const item = await this.itemService.getOneById(deleteImages.itemId);
+    if (!item) return new BadRequestError('item not found!');
+    if (item.user.toString() !== deleteImages.userId) {
+      return new NotAuthorizedError()
+    }
+
+    return await this.itemService.deleteImages(deleteImages)
+  }
 }
 export const providerService = new ProviderService(itemService)

@@ -2,6 +2,8 @@
 import { ItemModel, uploadDir } from "@fadedreams7pcplatform/common";
 import { Item } from "./item.model";
 import { CreateItemDto, UpdateItemDto, DeleteItemDto, AddImagesDto, DeleteImagesDto } from '../dtos/item.dto'
+import { BadRequestError, NotAuthorizedError, } from '@fadedreams7pcplatform/common'
+
 import fs from 'fs'
 import path from 'path'
 
@@ -32,6 +34,18 @@ export class ItemService {
   async deleteItem(deleteItemDto: DeleteItemDto) {
     return await this.itemModel.findOneAndDelete({ _id: deleteItemDto.itemId })
   }
+
+  async addImages(addImages: AddImagesDto) {
+    const images = this.generateItemImages(addImages.files);
+    return await this.itemModel.findOneAndUpdate({ _id: addImages.itemId },
+      { $push: { images: { $each: images } } }, { new: true })
+  }
+
+  async deleteImages(deleteImages: DeleteImagesDto) {
+    return await this.itemModel.findOneAndUpdate({ _id: deleteImages.itemId },
+      { $pull: { images: { _id: { $in: deleteImages.imagesIds } } } }, { new: true })
+  }
+
 
   generateBase64Url(contentType: string, buffer: Buffer) {
     return `data:${contentType};base64,${buffer.toString('base64')}`

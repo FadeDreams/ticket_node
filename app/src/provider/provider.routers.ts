@@ -44,11 +44,34 @@ router.post('/item/:id/update', requireAuth, async (req: Request, res: Response,
 
 
 router.delete("/item/:id/delete", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-    const result = await providerService.deleteItem({ itemId: id, userId: req.currentUser!.userId })
-    if(result instanceof CustomError ) return next(result);
+  const { id } = req.params;
+  const result = await providerService.deleteItem({ itemId: id, userId: req.currentUser!.userId })
+  if (result instanceof CustomError) return next(result);
 
-    res.status(200).send(true)
+  res.status(200).send(true)
+})
+
+router.post("/item/:id/add-images", requireAuth, multipeFilesMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+
+  if (!req.files) return next(new BadRequestError('images are required'))
+
+  if (req.uploaderError) return next(new BadRequestError(req.uploaderError.message));
+
+  const result = await providerService.addItemImages({ itemId: id, userId: req.currentUser!.userId, files: req.files })
+  if (result instanceof CustomError) return next(result);
+
+  res.status(200).send(result)
+})
+
+router.post('/item/:id/delete-images', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const { imagesIds } = req.body
+  const result = await providerService.deleteItemImages({ itemId: id, userId: req.currentUser!.userId, imagesIds })
+
+  if (result instanceof CustomError) return next(result);
+
+  res.status(200).send(result)
 })
 
 export { router as providerRouters }
