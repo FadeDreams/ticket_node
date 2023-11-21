@@ -21,6 +21,10 @@ export class CartService {
     return await cart.save()
   }
 
+  async getCartItemById(itemId: string, cartId: string) {
+    return await this.cartItemModel.findOne({ item: itemId, cart: cartId })
+  }
+
   async createCartItem(createCartItemDto: CreateCartItemDto) {
     const cartItem = new this.cartItemModel({
       cart: createCartItemDto.cartId,
