@@ -84,6 +84,7 @@ export class CartService {
         $inc: { totalPrice: -(cartItem.item.price * cartItem.quantity) }
       }, { new: true })
   }
+
   async addItem(addItemToCart: AddItemToCartDto, item: ItemDoc) {
     const { userId, quantity, itemId } = addItemToCart;
     let cart = await this.findOneByUserId(userId);
