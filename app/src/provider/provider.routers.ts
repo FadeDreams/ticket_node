@@ -1,48 +1,36 @@
+
 import { Router, Response, Request, NextFunction } from "express";
-import { BadRequestError, uploadDir, CustomError } from "@fadedreams7pcplatform/common";
-import { providerService } from './provider.service';
-import multer from "multer";
-import { requireAuth } from "@fadedreams7pcplatform/common";
+import { BadRequestError, uploadDir, Uploader, UploaderMiddlewareOptions, requireAuth, CustomError } from "@fadedreams7pcplatform/common";
+import { providerService } from './provider.service'
 
-const router = Router();
 
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-    }
-  },
-});
+const uploader = new Uploader(uploadDir)
+const middlewareOptions: UploaderMiddlewareOptions = {
+  types: ['image/png', 'image/jpeg'],
+  fieldName: 'image'
+}
 
-router.post('/item/new', requireAuth, upload.array('images', 5), async (req: Request, res: Response, next: NextFunction) => {
+const multipeFilesMiddleware = uploader.uploadMultipleFiles(middlewareOptions);
+
+const router = Router()
+
+router.post('/item/new', requireAuth, multipeFilesMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   const { title, price } = req.body;
-  console.log(title);
-  console.log(price);
 
-  // If using upload.array, you can access files as req.files
-  const files = req.files;
+  if (!req.files) return next(new BadRequestError('images are required'))
 
-  if (!files || files.length === 0) {
-    return next(new BadRequestError('Images are required'));
-  }
+  if (req.uploaderError) return next(new BadRequestError(req.uploaderError.message));
 
-  try {
-    const item = await providerService.addItem({
-      title,
-      price,
-      userId: req.currentUser!.userId,
-      files: files,
-    });
+  const item = await providerService.addItem({
+    title,
+    price,
+    userId: req.currentUser!.userId,
+    files: req.files
+  })
 
-    res.status(201).send(item);
-  } catch (error) {
-    next(error);
-  }
-});
+  res.status(201).send(item)
+})
 
-export { router as providerRouters };
+
+
+export { router as providerRouters }
