@@ -29,6 +29,10 @@ export class ItemService {
       { $set: { title: updateItem.title, price: updateItem.price } }, { new: true })
   }
 
+  async deleteItem(deleteItemDto: DeleteItemDto) {
+    return await this.itemModel.findOneAndDelete({ _id: deleteItemDto.itemId })
+  }
+
   generateBase64Url(contentType: string, buffer: Buffer) {
     return `data:${contentType};base64,${buffer.toString('base64')}`
   }

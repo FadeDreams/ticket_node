@@ -20,5 +20,15 @@ export class ProviderService {
     return await this.itemService.updateItem(updateItem);
   }
 
+  async deleteItem(deleteItem: DeleteItemDto) {
+    const item = await this.itemService.getOneById(deleteItem.itemId);
+    if (!item) return new BadRequestError('item not found!');
+    if (item.user.toString() !== deleteItem.userId) {
+      return new NotAuthorizedError()
+    }
+
+    return await this.itemService.deleteItem(deleteItem)
+  }
+
 }
 export const providerService = new ProviderService(itemService)

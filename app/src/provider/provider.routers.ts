@@ -43,5 +43,12 @@ router.post('/item/:id/update', requireAuth, async (req: Request, res: Response,
 })
 
 
+router.delete("/item/:id/delete", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const result = await providerService.deleteItem({ itemId: id, userId: req.currentUser!.userId })
+    if(result instanceof CustomError ) return next(result);
+
+    res.status(200).send(true)
+})
 
 export { router as providerRouters }
