@@ -33,3 +33,14 @@ router.post('/cart/:cartId/item/:id/update-quantity', async (req: Request, res: 
   res.status(200).send(result)
 })
 
+router.post('/cart/delete/item', async (req: Request, res: Response, next: NextFunction) => {
+  const { cartId, itemId } = req.body;
+
+  const result = await consumerService.removeItemFromCart({
+    cartId, itemId });
+
+  if(result instanceof CustomError ||
+      result instanceof Error) return next(result);
+
+  res.status(200).send(result)
+})

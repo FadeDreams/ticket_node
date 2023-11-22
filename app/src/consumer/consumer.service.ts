@@ -28,21 +28,18 @@ export class ConsumerService {
     return cart;
   }
 
+  async removeItemFromCart(removeItemFromCart: RemoveItemFromCartDto) {
+    const { itemId, cartId } = removeItemFromCart;
+    const cartItem = await this.cartService.getCartItemById(itemId, cartId)
+    if (!cartItem) return new BadRequestError('item not found in cart');
+
+    const cart = await this.cartService.removeItemFromCart(removeItemFromCart);
+    if (!cart) return new Error('could not update the cart')
+    return cart;
+  }
+
+
 }
 
-router.post('/cart/:cartId/item/:id/update-quantity', async (req: Request, res: Response, next: NextFunction) => {
-  const { amount } = req.body;
-  const { cartId, id: itemId } = req.params
-
-  const inc = req.body.inc === "true" ? true : req.body.inc === "false" ? false : null;
-  if (inc === null) return next(new BadRequestError('inc should be either true or false'))
-
-  const result = await buyerService.updateCartItemQuantity({ cartId, itemId, options: { amount, inc } })
-
-  if (result instanceof CustomError ||
-    result instanceof Error) return next(result);
-
-  res.status(200).send(result)
-})
 
 export const consumerService = new ConsumerService(cartService, itemService)
