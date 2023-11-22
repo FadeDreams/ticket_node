@@ -110,6 +110,7 @@ export class CartService {
       { $push: { items: cartItem }, $inc: { totalPrice: item.price * quantity } }, { new: true })
 
   }
+
 }
 
 export const cartService = new CartService(Cart, CartItem)

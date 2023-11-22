@@ -37,10 +37,26 @@ router.post('/cart/delete/item', async (req: Request, res: Response, next: NextF
   const { cartId, itemId } = req.body;
 
   const result = await consumerService.removeItemFromCart({
-    cartId, itemId });
+    cartId, itemId
+  });
 
-  if(result instanceof CustomError ||
-      result instanceof Error) return next(result);
+  if (result instanceof CustomError ||
+    result instanceof Error) return next(result);
 
   res.status(200).send(result)
 })
+
+router.post('/get/cart/', async (req: Request, res: Response, next: NextFunction) => {
+  //const cartId = req.body.cartId
+  const cartId = req.session?.cartId
+  if (!cartId) return next(new BadRequestError('cartId is required!'))
+  console.log(req.currentUser)
+
+  const result = await consumerService.getCart(cartId, req.currentUser!.userId);
+
+  if (result instanceof CustomError ||
+    result instanceof Error) return next(result);
+
+  res.status(200).send(result);
+});
+

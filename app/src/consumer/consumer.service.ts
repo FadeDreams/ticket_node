@@ -2,11 +2,13 @@ import { CartService, cartService } from './cart/cart.service'
 import { ItemService, itemService } from '../provider/item/item.service'
 import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from './dtos/cart.dto'
 import { BadRequestError, NotAuthorizedError } from '@fadedreams7pcplatform/common'
+import Stripe from 'stripe'
 
 export class ConsumerService {
   constructor(
     public cartService: CartService,
     public itemService: ItemService,
+    public stripeService: Stripe
   ) { }
 
   async addItemToCart(addItemToCart: AddItemToCartDto) {
@@ -38,8 +40,57 @@ export class ConsumerService {
     return cart;
   }
 
+  async getCart(cartId: string, userId: string) {
+    const cart = await this.cartService.getCart(cartId);
+    if (!cart) return new BadRequestError('cart not found');
+    if (cart.user.toString() !== userId) return new NotAuthorizedError();
+
+    return cart
+  }
+
+  async checkout(userId: string, cardToken: string, userEmail: string) {
+    const cart = await this.cartService.findOneByUserId(userId);
+    if (!cart) return new BadRequestError('your cart is empty!');
+    if (cart.products.length === 0) return new BadRequestError('your cart is empty!');
+
+    let customer_id: string;
+
+    if (cart.customer_id) {
+      customer_id = cart.customer_id
+    } else {
+      const { id } = await this.stripeService.customers.create({
+        email: userEmail,
+        source: cardToken
+      });
+      customer_id = id;
+      await cart.set({ customer_id }).save()
+    }
+
+
+    if (!customer_id) return new BadRequestError('Invalid data');
+
+    const charge = await this.stripeService.charges.create({
+      amount: cart.totalPrice * 100,
+      currency: 'usd',
+      customer: customer_id
+    })
+
+    if (!charge) return new BadRequestError('Invalid data! could not create the charge!')
+
+    // create new order
+    await this.orderService.createOrder({
+      userId,
+      totalAmount: cart.totalPrice,
+      chargeId: charge.id
+    })
+
+    // clear cart
+    await this.cartService.clearCart(userId, cart._id);
+
+    return charge;
+  }
 
 }
 
-
-export const consumerService = new ConsumerService(cartService, itemService)
+export const consumerService = new ConsumerService(cartService, itemService,
+  new Stripe(process.env.STRIPE_KEY!, { apiVersion: '2023-10-16' }))
