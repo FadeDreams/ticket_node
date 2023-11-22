@@ -2,12 +2,14 @@ import { CartService, cartService } from './cart/cart.service'
 import { ItemService, itemService } from '../provider/item/item.service'
 import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from './dtos/cart.dto'
 import { BadRequestError, NotAuthorizedError } from '@fadedreams7pcplatform/common'
+import { OrderService, orderService } from './order/order.service'
 import Stripe from 'stripe'
 
 export class ConsumerService {
   constructor(
     public cartService: CartService,
     public itemService: ItemService,
+    public orderService: OrderService,
     public stripeService: Stripe
   ) { }
 
@@ -78,6 +80,12 @@ export class ConsumerService {
     if (!charge) return new BadRequestError('Invalid data! could not create the charge!')
 
     // create new order
+    await this.orderService.createOrder({
+      userId,
+      totalAmount: cart.totalPrice,
+      chargeId: charge.id
+    })
+
     // clear cart
     await this.cartService.clearCart(userId, cart._id);
 
@@ -86,5 +94,5 @@ export class ConsumerService {
 
 }
 
-export const consumerService = new ConsumerService(cartService, itemService,
+export const consumerService = new ConsumerService(cartService, itemService, orderService,
   new Stripe(process.env.STRIPE_KEY!, { apiVersion: '2023-10-16' }))

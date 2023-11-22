@@ -60,3 +60,15 @@ router.post('/get/cart/', async (req: Request, res: Response, next: NextFunction
   res.status(200).send(result);
 });
 
+router.post('/payment/checkout/', async (req: Request, res: Response, next: NextFunction) => {
+  const { cardToken } = req.body;
+
+  const result = await consumerService.checkout(req.currentUser!.userId, cardToken, req.currentUser!.email);
+
+  if (result instanceof CustomError) return next(result);
+
+  res.status(200).json({ charge_id: result.id });
+})
+
+
+
