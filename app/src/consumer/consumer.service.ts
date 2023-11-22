@@ -92,6 +92,19 @@ export class ConsumerService {
     return charge;
   }
 
+  async updateCustomerStripeCard(userId: string, newCardToken: string) {
+    const cart = await this.cartService.findOneByUserId(userId);
+
+    try {
+      await this.stripeService.customers.update(cart!.customer_id!, {
+        source: newCardToken
+      })
+    } catch (err) {
+      return new Error('card update failed!')
+    }
+    return true;
+  }
+
 }
 
 export const consumerService = new ConsumerService(cartService, itemService, orderService,

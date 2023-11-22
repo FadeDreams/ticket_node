@@ -45,7 +45,7 @@ export class CartService {
 
   async clearCart(userId: string, cartId: string) {
     return await this.cartModel.findOneAndUpdate({ _id: cartId, user: userId },
-      { $set: { products: [], totalPrice: 0 } }, { new: true })
+      { $set: { items: [], totalPrice: 0 } }, { new: true })
   }
 
   async updateItemQuantity(updateCartItemQuantity: UpdateCartItemQuantityDto) {
