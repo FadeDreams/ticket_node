@@ -51,7 +51,7 @@ export class ConsumerService {
   async checkout(userId: string, cardToken: string, userEmail: string) {
     const cart = await this.cartService.findOneByUserId(userId);
     if (!cart) return new BadRequestError('your cart is empty!');
-    if (cart.products.length === 0) return new BadRequestError('your cart is empty!');
+    if (cart.items.length === 0) return new BadRequestError('your cart is empty!');
 
     let customer_id: string;
 
@@ -78,12 +78,6 @@ export class ConsumerService {
     if (!charge) return new BadRequestError('Invalid data! could not create the charge!')
 
     // create new order
-    await this.orderService.createOrder({
-      userId,
-      totalAmount: cart.totalPrice,
-      chargeId: charge.id
-    })
-
     // clear cart
     await this.cartService.clearCart(userId, cart._id);
 
