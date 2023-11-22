@@ -94,9 +94,11 @@ export class ConsumerService {
 
   async updateCustomerStripeCard(userId: string, newCardToken: string) {
     const cart = await this.cartService.findOneByUserId(userId);
+    if (!cart) return new BadRequestError('your cart is empty!');
+    if (!cart.customer_id) return new BadRequestError('you\'re not a customer!');
 
     try {
-      await this.stripeService.customers.update(cart!.customer_id!, {
+      await this.stripeService.customers.update(cart.customer_id, {
         source: newCardToken
       })
     } catch (err) {
