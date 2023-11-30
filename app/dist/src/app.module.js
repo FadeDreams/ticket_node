@@ -42,8 +42,11 @@ dotenv.config();
 const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const body_parser_1 = require("body-parser");
-const cookie_session_1 = __importDefault(require("cookie-session"));
 const common_1 = require("@fadedreams7pcplatform/common");
+const auth_routers_1 = require("./auth/auth.routers");
+const provider_routers_1 = require("./provider/provider.routers");
+const ioredis_1 = __importDefault(require("ioredis"));
+const express_session_1 = __importDefault(require("express-session"));
 class AppModule {
     constructor(app = (0, express_1.default)()) {
         this.app = app;
@@ -54,9 +57,23 @@ class AppModule {
         }));
         app.use((0, body_parser_1.urlencoded)({ extended: false }));
         app.use((0, body_parser_1.json)());
-        app.use((0, cookie_session_1.default)({
-            signed: false,
-            secure: false
+        const RedisClnt = new ioredis_1.default({ host: 'redis' });
+        // const RedisStore = connectRedis(session);
+        const RedisStore = require("connect-redis").default;
+        const redisStore = new RedisStore({ client: RedisClnt });
+        app.use((0, express_session_1.default)({
+            name: 'qid',
+            store: redisStore,
+            proxy: true,
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: false, // cookie only works in https
+            },
+            saveUninitialized: false,
+            secret: 'secret',
+            resave: false,
         }));
         Object.setPrototypeOf(this, AppModule.prototype);
     }
@@ -79,9 +96,15 @@ class AppModule {
             }
             this.app.use((0, common_1.currentUser)(process.env.JWT_KEY));
             this.app.use(common_1.errorHandler);
-            const PORT = process.env.PORT || 8080;
-            this.app.listen(PORT, () => console.log('OK! port: ' + PORT));
+            this.app.use(auth_routers_1.authRouters);
+            this.app.use(provider_routers_1.providerRouters);
+            // const PORT = process.env.PORT || 3000;
+            const PORT = parseInt(process.env.PORT, 10) || 3000;
+            this.app.listen(PORT, '0.0.0.0', () => console.log('OK! port: ' + PORT));
         });
     }
 }
 exports.AppModule = AppModule;
+// Create an instance of AppModule and start the application
+const myApp = new AppModule();
+myApp.start();

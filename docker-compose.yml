@@ -6,11 +6,24 @@ networks:
     driver: bridge
 
 services:
+  nodeapp_pc:
+    build: ./app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo-srv
+    volumes:
+      - nodeapp_pc-data:/app/data
+    env_file:
+      - ./app/.env
+    networks:
+      - my_network
+
 
   mongo-srv:
     image: mongo
     environment:
-      MONGO_INITDB_DATABASE: auth
+      MONGO_INITDB_DATABASE: pcplatform
     ports:
       - "27017:27017"
     volumes:
@@ -20,5 +33,14 @@ services:
     networks:
       - my_network
 
+  redis:
+    image: "redis:latest"
+    command: ["redis-server", "--maxmemory", "1g"]
+    ports:
+      - "6379:6379"
+    networks:
+      - my_network
+
 volumes:
   mongo-data:
+  nodeapp_pc-data:
