@@ -15,6 +15,9 @@ import connectRedis from 'connect-redis';
 import session from 'express-session';
 
 export class AppModule {
+  private static instance: AppModule;
+  private databaseConnected: boolean = false;
+
   constructor(public app: Application = express()) {
     app.set('trust-proxy', true);
 
@@ -27,7 +30,6 @@ export class AppModule {
     app.use(json());
 
     const RedisClnt = new Redis({ host: 'redis' });
-    // const RedisStore = connectRedis(session);
     const RedisStore = require("connect-redis").default;
     const redisStore = new RedisStore({ client: RedisClnt });
 
@@ -47,26 +49,41 @@ export class AppModule {
         resave: false,
       })
     );
+
     Object.setPrototypeOf(this, AppModule.prototype);
   }
 
-  async start() {
-    if (!process.env.MONGO_URI) {
-      throw new Error('mongo_uri must be defined');
+  public static getInstance(): AppModule {
+    if (!AppModule.instance) {
+      AppModule.instance = new AppModule();
     }
+    return AppModule.instance;
+  }
+
+  private async connectDatabase() {
+    if (!this.databaseConnected) {
+      if (!process.env.MONGO_URI) {
+        throw new Error('mongo_uri must be defined');
+      }
+
+      try {
+        await mongoose.connect(process.env.MONGO_URI);
+        this.databaseConnected = true;
+      } catch (err) {
+        throw new Error('database connection error');
+      }
+    }
+  }
+
+  public async start() {
+    await this.connectDatabase();
 
     if (!process.env.JWT_KEY) {
-      throw new Error('mongo_uri must be defined');
+      throw new Error('JWT_KEY must be defined');
     }
 
     if (!process.env.STRIPE_KEY) {
       throw new Error('STRIPE_KEY must be defined');
-    }
-
-    try {
-      await mongoose.connect(process.env.MONGO_URI);
-    } catch (err) {
-      throw new Error('database connection error');
     }
 
     this.app.use(currentUser(process.env.JWT_KEY!));
@@ -74,13 +91,12 @@ export class AppModule {
     this.app.use(authRouters);
     this.app.use(providerRouters);
 
-    // const PORT = process.env.PORT || 3000;
     const PORT = parseInt(process.env.PORT as string, 10) || 3000;
     this.app.listen(PORT, '0.0.0.0', () => console.log('OK! port: ' + PORT));
   }
 }
 
-// Create an instance of AppModule and start the application
-const myApp = new AppModule();
+// Usage
+const myApp = AppModule.getInstance();
 myApp.start();
 

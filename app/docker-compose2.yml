@@ -1,0 +1,39 @@
+version: '3.8'
+
+networks:
+  my_network:
+    driver: bridge
+
+services:
+
+  mongo-srv:
+    image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: pcplatform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    env_file:
+      - ./.env
+    networks:
+      - my_network
+
+  # rabbitmq:
+  #   image: "rabbitmq:3.8"
+  #   ports:
+  #     - "5672:5672"
+  #   networks:
+  #     - my_network
+
+  redis:
+    image: "redis:latest"
+    command: ["redis-server", "--maxmemory", "1g"]
+    ports:
+      - "6379:6379"
+    networks:
+      - my_network
+
+volumes:
+  nodeapppc-data:
+  mongo-data:
