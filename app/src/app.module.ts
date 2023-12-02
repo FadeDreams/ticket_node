@@ -14,11 +14,30 @@ import Redis from 'ioredis';
 import connectRedis from 'connect-redis';
 import session from 'express-session';
 
+import { WinstonLogger } from './winston-logger';
+import expressWinston from 'express-winston';
+import promBundle from 'express-prom-bundle';
+
+const metricsMiddleware = promBundle({
+  includeMethod: true,
+  includePath: true,
+});
+
 export class AppModule {
   private static instance: AppModule;
   private databaseConnected: boolean = false;
 
   constructor(public app: Application = express()) {
+    // Use Winston for logging
+    const winstonLogger = new WinstonLogger().getLogger();
+    this.app.use(expressWinston.logger({
+      winstonInstance: winstonLogger,
+      meta: true, // Includes metadata in logs (default to true)
+      msg: 'HTTP {{req.method}} {{req.url}}',
+      expressFormat: true,
+      colorize: false,
+    }));
+    this.app.use(metricsMiddleware);
     app.set('trust-proxy', true);
 
     app.use(cors({
@@ -90,6 +109,13 @@ export class AppModule {
     this.app.use(errorHandler);
     this.app.use(authRouters);
     this.app.use(providerRouters);
+
+    // Use Winston for logging
+    const winstonLogger = new WinstonLogger().getLogger();
+    this.app.use(expressWinston.errorLogger({
+      winstonInstance: winstonLogger,
+      meta: true, // Includes metadata in logs (default to true)
+    }));
 
     const PORT = parseInt(process.env.PORT as string, 10) || 3000;
     this.app.listen(PORT, '0.0.0.0', () => console.log('OK! port: ' + PORT));

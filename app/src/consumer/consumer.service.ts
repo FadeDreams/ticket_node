@@ -4,6 +4,12 @@ import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } fr
 import { BadRequestError, NotAuthorizedError } from '@fadedreams7pcplatform/common'
 import { OrderService, orderService } from './order/order.service'
 import Stripe from 'stripe'
+import redis from 'redis';
+
+// Create a Redis client
+const redisClient = redis.createClient({
+  url: 'redis://localhost:6379', // replace with your Redis URL
+});
 
 export class ConsumerService {
   constructor(
@@ -43,11 +49,22 @@ export class ConsumerService {
   }
 
   async getCart(cartId: string, userId: string) {
+    // First, try to get the cart from Redis
+    const cartStr = await redisClient.get(cartId);
+    if (cartStr) {
+      // If the cart is in Redis, return it
+      return JSON.parse(cartStr);
+    }
+
+    // If the cart is not in Redis, get it from your database
     const cart = await this.cartService.getCart(cartId);
     if (!cart) return new BadRequestError('cart not found');
     if (cart.user.toString() !== userId) return new NotAuthorizedError();
 
-    return cart
+    // Save the cart in Redis
+    await redisClient.set(cartId, JSON.stringify(cart));
+
+    return cart;
   }
 
   async checkout(userId: string, cardToken: string, userEmail: string) {
