@@ -14,7 +14,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@fadedreams7org1/common": "^1.0.8",
+        "@fadedreams7org1/common": "^1.0.9",
         "body-parser": "^1.20.2",
         "connect-redis": "^7.1.0",
         "cookie-session": "^2.0.0",
