@@ -2,7 +2,6 @@ import express, { Application } from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import cors from 'cors';
-import mongoose from 'mongoose';
 import { json, urlencoded } from 'body-parser';
 import cookieSession from 'cookie-session';
 import { errorHandler, currentUser } from '@fadedreams7org1/common';
@@ -15,9 +14,8 @@ import expressWinston from 'express-winston';
 import promBundle from 'express-prom-bundle';
 import { AppContext } from './context/AppContext'; // Import AppContext
 import { UrgentState } from './states/UrgentState'; // Import UrgentState
-
 import RedisConnection from './infrastructure/persistence/RedisConnection';
-
+import DatabaseConnection from './infrastructure/persistence/DatabaseConnection';
 
 const metricsMiddleware = promBundle({
     includeMethod: true,
@@ -29,12 +27,16 @@ export class AppModule {
     private databaseConnected: boolean = false;
     private appContext: AppContext; // Add AppContext
     private redisConnection: RedisConnection;
+    private databaseConnection: DatabaseConnection; // Add DatabaseConnection
+    private server: ReturnType<Application['listen']>; // Store the server instance
 
     constructor(public app: Application = express()) {
+        const winstonLogger = new WinstonLogger().getLogger();
         this.appContext = new AppContext(this.app); // Initialize AppContext with NormalState by default
         this.redisConnection = new RedisConnection();
+        this.databaseConnection = new DatabaseConnection(winstonLogger, process.env.MONGO_URI!); // Initialize DatabaseConnection
+
         // Use Winston for logging
-        const winstonLogger = new WinstonLogger().getLogger();
         this.app.use(expressWinston.logger({
             winstonInstance: winstonLogger,
             meta: true, // Includes metadata in logs (default to true)
@@ -52,7 +54,6 @@ export class AppModule {
 
         app.use(urlencoded({ extended: false }));
         app.use(json());
-
 
         Object.setPrototypeOf(this, AppModule.prototype);
     }
@@ -101,16 +102,43 @@ export class AppModule {
         }
     }
 
-    private async connectDatabase() {
+    private async connectDatabase(): Promise<void> {
         if (!this.databaseConnected) {
             try {
-                await mongoose.connect(process.env.MONGO_URI!);
+                await this.databaseConnection.connectWithRetry();
                 this.databaseConnected = true;
                 console.log('Database connected successfully.');
             } catch (err) {
                 throw new Error('Database connection error: ' + err.message);
             }
         }
+    }
+
+    private async shutdown(): Promise<void> {
+        console.log('Starting graceful shutdown...');
+
+        // Close the HTTP server
+        if (this.server) {
+            this.server.close(() => {
+                console.log('HTTP server closed.');
+            });
+        }
+
+        // Disconnect from MongoDB
+        if (this.databaseConnection.isConnected()) {
+            await this.databaseConnection.disconnect();
+            console.log('MongoDB disconnected.');
+        }
+
+        // Close the Redis connection
+        const redisClient = this.redisConnection.getClient();
+        if (redisClient) {
+            await redisClient.quit();
+            console.log('Redis connection closed.');
+        }
+
+        console.log('Graceful shutdown complete.');
+        process.exit(0); // Exit the process
     }
 
     public async start() {
@@ -121,6 +149,7 @@ export class AppModule {
             // Connect to the database
             await this.connectDatabase();
             await this.checkRedisConnection();
+
             // Start monitoring resources
             setInterval(() => this.appContext.monitorResources(), 5000); // Check every 5 seconds
 
@@ -138,7 +167,11 @@ export class AppModule {
             }));
 
             const PORT = parseInt(process.env.PORT as string, 10) || 3000;
-            this.app.listen(PORT, '0.0.0.0', () => console.log('Server is running on port: ' + PORT));
+            this.server = this.app.listen(PORT, '0.0.0.0', () => console.log('Server is running on port: ' + PORT));
+
+            // Handle shutdown signals
+            process.on('SIGINT', () => this.shutdown());
+            process.on('SIGTERM', () => this.shutdown());
         } catch (error) {
             console.error('Startup error:', error.message);
             process.exit(1);
