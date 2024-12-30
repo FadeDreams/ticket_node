@@ -8,13 +8,16 @@ import cookieSession from 'cookie-session';
 import { errorHandler, currentUser } from '@fadedreams7org1/common';
 import { authRouters } from './auth/auth.routers';
 import { providerRouters } from './provider/provider.routers';
+import { consumerRouters } from './consumer/consumer.routers'; // Import consumerRouters
 import session from 'express-session';
-
 import { WinstonLogger } from './winston-logger';
 import expressWinston from 'express-winston';
 import promBundle from 'express-prom-bundle';
 import { AppContext } from './context/AppContext'; // Import AppContext
 import { UrgentState } from './states/UrgentState'; // Import UrgentState
+
+import RedisConnection from './infrastructure/persistence/RedisConnection';
+
 
 const metricsMiddleware = promBundle({
     includeMethod: true,
@@ -25,9 +28,11 @@ export class AppModule {
     private static instance: AppModule;
     private databaseConnected: boolean = false;
     private appContext: AppContext; // Add AppContext
+    private redisConnection: RedisConnection;
 
     constructor(public app: Application = express()) {
         this.appContext = new AppContext(this.app); // Initialize AppContext with NormalState by default
+        this.redisConnection = new RedisConnection();
         // Use Winston for logging
         const winstonLogger = new WinstonLogger().getLogger();
         this.app.use(expressWinston.logger({
@@ -47,6 +52,7 @@ export class AppModule {
 
         app.use(urlencoded({ extended: false }));
         app.use(json());
+
 
         Object.setPrototypeOf(this, AppModule.prototype);
     }
@@ -76,6 +82,25 @@ export class AppModule {
         }
     }
 
+    private async checkRedisConnection(): Promise<void> {
+        console.log('Redis connection status:', this.redisConnection.getStatus());
+
+        const client = this.redisConnection.getClient();
+        if (client) {
+            try {
+                await client.set('myKey', 'myValue');
+                console.log('Key set successfully.');
+
+                const value = await client.get('myKey');
+                console.log('Value retrieved:', value);
+            } catch (error) {
+                console.log('Error using Redis:', error);
+            }
+        } else {
+            console.log('Redis client is not connected.');
+        }
+    }
+
     private async connectDatabase() {
         if (!this.databaseConnected) {
             try {
@@ -95,21 +120,15 @@ export class AppModule {
 
             // Connect to the database
             await this.connectDatabase();
-
+            await this.checkRedisConnection();
             // Start monitoring resources
             setInterval(() => this.appContext.monitorResources(), 5000); // Check every 5 seconds
 
             this.app.use(currentUser(process.env.JWT_KEY!));
             this.app.use(errorHandler);
             this.app.use(authRouters);
-
-            // Conditionally add providerRouters based on the current state
-            this.app.use((req, res, next) => {
-                if (!(this.appContext.getCurrentState() instanceof UrgentState)) {
-                    this.app.use(providerRouters);
-                }
-                next();
-            });
+            this.app.use(providerRouters);
+            this.app.use(consumerRouters); // Add consumerRouters
 
             // Use Winston for error logging
             const winstonLogger = new WinstonLogger().getLogger();

@@ -1,4 +1,3 @@
-
 version: '3.8'
 
 networks:
@@ -6,18 +5,19 @@ networks:
     driver: bridge
 
 services:
-  nodeapppc:
-    build: .
-    ports:
-      - "3000:3000"
-    depends_on:
-      - mongo-srv
-    volumes:
-      - nodeapppc-data:/app/data
-    env_file:
-      - ./.env
-    networks:
-      - my_network
+
+  # nodeapppc:
+  #   build: .
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - mongo-srv
+  #   volumes:
+  #     - nodeapppc-data:/app/data
+  #   env_file:
+  #     - ./.env
+  #   networks:
+  #     - my_network
 
   mongo-srv:
     image: mongo
