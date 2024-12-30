@@ -1,6 +1,7 @@
 // app/src/infrastructure/persistence/RedisConnection.ts
 import { createClient, RedisClientType } from '@redis/client';
-import logger from '../logging/Logger'; // Import the logger
+import Logger from '../logging/Logger';
+const logger = Logger.getLogger();
 
 class RedisConnection {
     private client: RedisClientType | null = null;

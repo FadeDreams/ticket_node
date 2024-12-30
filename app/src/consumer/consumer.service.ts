@@ -6,7 +6,9 @@ import { BadRequestError, NotAuthorizedError } from '@fadedreams7org1/common';
 import { OrderService, orderService } from './order/order.service';
 import Stripe from 'stripe';
 import RedisConnection from '../infrastructure/persistence/RedisConnection'; // Import RedisConnection
-import logger from '../infrastructure/logging/Logger'; // Import the logger
+// import logger from '../infrastructure/logging/Logger'; // Import the logger
+import Logger from '../infrastructure/logging/Logger';
+const logger = Logger.getLogger();
 
 // Create a single instance of RedisConnection
 const redisConnection = new RedisConnection();
