@@ -8,14 +8,13 @@ import cookieSession from 'cookie-session';
 import { errorHandler, currentUser } from '@fadedreams7org1/common';
 import { authRouters } from './auth/auth.routers';
 import { providerRouters } from './provider/provider.routers';
-
-import Redis from 'ioredis';
-import connectRedis from 'connect-redis';
 import session from 'express-session';
 
 import { WinstonLogger } from './winston-logger';
 import expressWinston from 'express-winston';
 import promBundle from 'express-prom-bundle';
+import { AppContext } from './context/AppContext'; // Import AppContext
+import { UrgentState } from './states/UrgentState'; // Import UrgentState
 
 const metricsMiddleware = promBundle({
     includeMethod: true,
@@ -25,8 +24,10 @@ const metricsMiddleware = promBundle({
 export class AppModule {
     private static instance: AppModule;
     private databaseConnected: boolean = false;
+    private appContext: AppContext; // Add AppContext
 
     constructor(public app: Application = express()) {
+        this.appContext = new AppContext(this.app); // Initialize AppContext with NormalState by default
         // Use Winston for logging
         const winstonLogger = new WinstonLogger().getLogger();
         this.app.use(expressWinston.logger({
@@ -46,27 +47,6 @@ export class AppModule {
 
         app.use(urlencoded({ extended: false }));
         app.use(json());
-
-        const RedisClnt = new Redis({ host: 'redis' });
-        const RedisStore = require("connect-redis").default;
-        const redisStore = new RedisStore({ client: RedisClnt });
-
-        app.use(
-            session({
-                name: 'qid',
-                store: redisStore,
-                proxy: true,
-                cookie: {
-                    maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-                    httpOnly: true,
-                    sameSite: 'lax', // CSRF protection
-                    secure: false, // cookie only works in HTTPS
-                },
-                saveUninitialized: false,
-                secret: 'secret',
-                resave: false,
-            })
-        );
 
         Object.setPrototypeOf(this, AppModule.prototype);
     }
@@ -116,10 +96,20 @@ export class AppModule {
             // Connect to the database
             await this.connectDatabase();
 
+            // Start monitoring resources
+            setInterval(() => this.appContext.monitorResources(), 5000); // Check every 5 seconds
+
             this.app.use(currentUser(process.env.JWT_KEY!));
             this.app.use(errorHandler);
             this.app.use(authRouters);
-            this.app.use(providerRouters);
+
+            // Conditionally add providerRouters based on the current state
+            this.app.use((req, res, next) => {
+                if (!(this.appContext.getCurrentState() instanceof UrgentState)) {
+                    this.app.use(providerRouters);
+                }
+                next();
+            });
 
             // Use Winston for error logging
             const winstonLogger = new WinstonLogger().getLogger();
@@ -137,7 +127,5 @@ export class AppModule {
     }
 }
 
-// Usage
-const myApp = AppModule.getInstance();
-myApp.start();
-
+// const myApp = AppModule.getInstance();
+// myApp.start();
