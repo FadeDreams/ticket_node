@@ -1,34 +1,34 @@
 
 import mongoose from 'mongoose'
-import { UserModel, UserDoc, AuthenticationService } from '@fadedreams7pcplatform/common'
+import { UserModel, UserDoc, AuthenticationService } from '@fadedreams7org1/common'
 
 const schema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  }
-}, {
-  toJSON: {
-    transform(doc, ret) {
-      ret.id = ret._id
-      delete ret._id
-      delete ret.password
+    email: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
     }
-  }
+}, {
+    toJSON: {
+        transform(doc, ret) {
+            ret.id = ret._id
+            delete ret._id
+            delete ret.password
+        }
+    }
 })
 
 schema.pre('save', async function(done) {
-  const authenticationService = new AuthenticationService()
-  if (this.isModified('password') || this.isNew) {
-    const hashedPwd = await authenticationService.pwdToHash(this.get('password'));
-    this.set('password', hashedPwd);
-  }
+    const authenticationService = new AuthenticationService()
+    if (this.isModified('password') || this.isNew) {
+        const hashedPwd = await authenticationService.pwdToHash(this.get('password'));
+        this.set('password', hashedPwd);
+    }
 
-  done()
+    done()
 })
 
 export const User = mongoose.model<UserDoc, UserModel>('User', schema);

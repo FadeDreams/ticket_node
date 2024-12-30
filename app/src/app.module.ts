@@ -5,7 +5,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import { json, urlencoded } from 'body-parser';
 import cookieSession from 'cookie-session';
-import { errorHandler, currentUser } from '@fadedreams7pcplatform/common';
+import { errorHandler, currentUser } from '@fadedreams7org1/common';
 import { authRouters } from './auth/auth.routers';
 import { providerRouters } from './provider/provider.routers';
 

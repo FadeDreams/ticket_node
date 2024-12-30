@@ -1,5 +1,5 @@
 
-import { ItemModel, uploadDir } from "@fadedreams7pcplatform/common";
+import { ItemModel, uploadDir } from "@fadedreams7org1/common";
 import { Item } from "./item.model";
 import { CreateItemDto, UpdateItemDto, DeleteItemDto, AddImagesDto, DeleteImagesDto } from '../dtos/item.dto'
 import fs from 'fs'

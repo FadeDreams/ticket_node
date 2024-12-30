@@ -1,21 +1,21 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
+var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function(resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
+var __importDefault = (this && this.__importDefault) || function(mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.consumerService = exports.ConsumerService = void 0;
 const cart_service_1 = require("./cart/cart.service");
 const item_service_1 = require("../provider/item/item.service");
-const common_1 = require("@fadedreams7pcplatform/common");
+const common_1 = require("@fadedreams7org1/common");
 const order_service_1 = require("./order/order.service");
 const stripe_1 = __importDefault(require("stripe"));
 class ConsumerService {
@@ -26,7 +26,7 @@ class ConsumerService {
         this.stripeService = stripeService;
     }
     addItemToCart(addItemToCart) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             const item = yield this.itemService.getOneById(addItemToCart.itemId);
             if (!item)
                 return new common_1.BadRequestError('item not found!');
@@ -37,7 +37,7 @@ class ConsumerService {
         });
     }
     updateCartItemQuantity(updateCartItemQuantity) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             const { itemId, cartId } = updateCartItemQuantity;
             const cartItem = yield this.cartService.getCartItemById(itemId, cartId);
             if (!cartItem)
@@ -49,7 +49,7 @@ class ConsumerService {
         });
     }
     removeItemFromCart(removeItemFromCart) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             const { itemId, cartId } = removeItemFromCart;
             const cartItem = yield this.cartService.getCartItemById(itemId, cartId);
             if (!cartItem)
@@ -61,7 +61,7 @@ class ConsumerService {
         });
     }
     getCart(cartId, userId) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             const cart = yield this.cartService.getCart(cartId);
             if (!cart)
                 return new common_1.BadRequestError('cart not found');
@@ -71,7 +71,7 @@ class ConsumerService {
         });
     }
     checkout(userId, cardToken, userEmail) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             const cart = yield this.cartService.findOneByUserId(userId);
             if (!cart)
                 return new common_1.BadRequestError('your cart is empty!');
@@ -110,7 +110,7 @@ class ConsumerService {
         });
     }
     updateCustomerStripeCard(userId, newCardToken) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function*() {
             const cart = yield this.cartService.findOneByUserId(userId);
             if (!cart)
                 return new common_1.BadRequestError('your cart is empty!');

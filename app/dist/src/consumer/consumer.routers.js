@@ -1,7 +1,7 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
+var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function(resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function(resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
@@ -11,11 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.consumerRouters = void 0;
 const express_1 = require("express");
-const common_1 = require("@fadedreams7pcplatform/common");
+const common_1 = require("@fadedreams7org1/common");
 const consumer_service_1 = require("./consumer.service");
 const router = (0, express_1.Router)();
 exports.consumerRouters = router;
-router.post('/cart/add', common_1.requireAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/cart/add', common_1.requireAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function*() {
     const { itemId, quantity } = req.body;
     const result = yield consumer_service_1.consumerService.addItemToCart({ itemId, quantity, userId: req.currentUser.userId });
     if (result instanceof common_1.CustomError || result instanceof Error)
@@ -23,7 +23,7 @@ router.post('/cart/add', common_1.requireAuth, (req, res, next) => __awaiter(voi
     req.session.cartId = result._id;
     res.status(200).send(result);
 }));
-router.post('/cart/:cartId/item/:id/update-quantity', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/cart/:cartId/item/:id/update-quantity', (req, res, next) => __awaiter(void 0, void 0, void 0, function*() {
     const { amount } = req.body;
     const { cartId, id: itemId } = req.params;
     const inc = req.body.inc === 'true' ? true : req.body.inc === 'false' ? false : null;
@@ -34,7 +34,7 @@ router.post('/cart/:cartId/item/:id/update-quantity', (req, res, next) => __awai
         return next(result);
     res.status(200).send(result);
 }));
-router.post('/cart/delete/item', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/cart/delete/item', (req, res, next) => __awaiter(void 0, void 0, void 0, function*() {
     const { cartId, itemId } = req.body;
     const result = yield consumer_service_1.consumerService.removeItemFromCart({
         cartId, itemId
@@ -43,7 +43,7 @@ router.post('/cart/delete/item', (req, res, next) => __awaiter(void 0, void 0, v
         return next(result);
     res.status(200).send(result);
 }));
-router.post('/get/cart/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/get/cart/', (req, res, next) => __awaiter(void 0, void 0, void 0, function*() {
     var _a;
     const cartId = (_a = req.session) === null || _a === void 0 ? void 0 : _a.cartId;
     if (!cartId)
@@ -54,14 +54,14 @@ router.post('/get/cart/', (req, res, next) => __awaiter(void 0, void 0, void 0, 
         return next(result);
     res.status(200).send(result);
 }));
-router.post('/payment/checkout/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/payment/checkout/', (req, res, next) => __awaiter(void 0, void 0, void 0, function*() {
     const { cardToken } = req.body;
     const result = yield consumer_service_1.consumerService.checkout(req.currentUser.userId, cardToken, req.currentUser.email);
     if (result instanceof common_1.CustomError)
         return next(result);
     res.status(200).json({ charge_id: result.id });
 }));
-router.post('/payment/card/update', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/payment/card/update', (req, res, next) => __awaiter(void 0, void 0, void 0, function*() {
     const { cardToken } = req.body;
     const result = yield consumer_service_1.consumerService.updateCustomerStripeCard(req.currentUser.userId, cardToken);
     if (result instanceof common_1.CustomError || result instanceof Error)
