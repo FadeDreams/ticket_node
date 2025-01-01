@@ -4,7 +4,9 @@ import { AuthDto } from './dtos/auth.dto'
 import { BadRequestError, AuthenticationService } from '@fadedreams7org1/common'
 import { NextFunction } from 'express';
 
-export class AuthService {
+
+import { IAuthService } from './interfaces/auth.interface'; // Import the interface
+export class AuthService implements IAuthService {
     constructor(
         public userService: UserService,
         public authenticationService: AuthenticationService

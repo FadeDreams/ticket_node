@@ -1,8 +1,9 @@
 import { ItemService, itemService } from "./item/item.service";
 import { CreateItemDto, UpdateItemDto, DeleteItemDto, AddImagesDto, DeleteImagesDto } from './dtos/item.dto'
 import { BadRequestError, NotAuthorizedError, } from '@fadedreams7org1/common'
+import { IProviderService } from './interfaces/provider.interface'; // Import the interface
 
-export class ProviderService {
+export class ProviderService implements IProviderService {
     constructor(
         public itemService: ItemService
     ) { }

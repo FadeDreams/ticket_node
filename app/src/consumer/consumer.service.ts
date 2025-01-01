@@ -1,4 +1,6 @@
 // app/src/consumer/consumer.service.ts
+import { IConsumerService } from './interfaces/consumer.interface'; // Import the interface
+
 import { CartService, cartService } from './cart/cart.service';
 import { ItemService, itemService } from '../provider/item/item.service';
 import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from './dtos/cart.dto';
@@ -13,7 +15,7 @@ const logger = Logger.getLogger();
 // Create a single instance of RedisConnection
 const redisConnection = new RedisConnection();
 
-export class ConsumerService {
+export class ConsumerService implements IConsumerService {
     constructor(
         public cartService: CartService,
         public itemService: ItemService,
