@@ -1,7 +1,7 @@
 
 import { UserModel } from '@fadedreams7org1/common'
-import { User } from './user.model'
-import { AuthDto } from '../dtos/auth.dto'
+import { User } from '@src/domain/auth/user/user.model'
+import { AuthDto } from '@src/domain/auth/dtos/auth.dto'
 
 
 export class UserService {

@@ -1,6 +1,6 @@
 import { CartModel, CartItemModel, ItemDoc } from "@fadedreams7org1/common";
-import { CartItem } from "./cart-item.model";
-import { Cart } from "./cart.model";
+import { CartItem } from "@src/domain/consumer/cart/cart-item.model.ts";
+import { Cart } from "@src/domain/consumer/cart/cart.model";
 import { AddItemToCartDto, CreateCartItemDto, RemoveItemFromCartDto, UpdateCartItemQuantityDto } from '../dtos/cart.dto'
 
 export class CartService {

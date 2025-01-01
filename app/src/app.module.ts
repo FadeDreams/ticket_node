@@ -3,20 +3,17 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import cors from 'cors';
 import { json, urlencoded } from 'body-parser';
-import cookieSession from 'cookie-session';
 import { errorHandler, currentUser } from '@fadedreams7org1/common';
-import RedisConnection from './infrastructure/persistence/RedisConnection';
-import DatabaseConnection from './infrastructure/persistence/DatabaseConnection';
+import RedisConnection from '@src/infrastructure/persistence/RedisConnection';
+import DatabaseConnection from '@src/infrastructure/persistence/DatabaseConnection';
 
-import { authRouters } from './presentation/auth/auth.routes'; // Updated path
-import { providerRouters } from './presentation/provider/provider.routes'; // Updated path
-import { consumerRouters } from './presentation/consumer/consumer.routes'; // Updated path
-import session from 'express-session';
-import { WinstonLogger } from './infrastructure/logging/winston-logger'; // Updated path
+import { authRouters } from '@src/presentation/auth/auth.routes';
+import { providerRouters } from '@src/presentation/provider/provider.routes';
+import { consumerRouters } from '@src/presentation/consumer/consumer.routes';
+import { WinstonLogger } from '@src/infrastructure/logging/winston-logger';
 import expressWinston from 'express-winston';
 import promBundle from 'express-prom-bundle';
-import { AppContext } from './common/context/AppContext'; // Updated path
-import { UrgentState } from './common/states/UrgentState'; // Updated path
+import { AppContext } from '@src/common/context/AppContext';
 
 const metricsMiddleware = promBundle({
     includeMethod: true,
@@ -26,16 +23,16 @@ const metricsMiddleware = promBundle({
 export class AppModule {
     private static instance: AppModule;
     private databaseConnected: boolean = false;
-    private appContext: AppContext; // Add AppContext
+    private appContext: AppContext;
     private redisConnection: RedisConnection;
-    private databaseConnection: DatabaseConnection; // Add DatabaseConnection
-    private server: ReturnType<Application['listen']>; // Store the server instance
+    private databaseConnection: DatabaseConnection;
+    private server: ReturnType<Application['listen']>;
 
     constructor(public app: Application = express()) {
         const winstonLogger = new WinstonLogger().getLogger();
-        this.appContext = new AppContext(this.app); // Initialize AppContext with NormalState by default
+        this.appContext = new AppContext(this.app);
         this.redisConnection = new RedisConnection();
-        this.databaseConnection = new DatabaseConnection(winstonLogger, process.env.MONGO_URI!); // Initialize DatabaseConnection
+        this.databaseConnection = new DatabaseConnection(winstonLogger, process.env.MONGO_URI!);
 
         // Use Winston for logging
         this.app.use(expressWinston.logger({

@@ -1,4 +1,4 @@
-import { AppModule } from './app.module'
+import { AppModule } from '@src/app.module'
 import express from 'express'
 import { JwtPayload } from '@fadedreams7org1/common'
 

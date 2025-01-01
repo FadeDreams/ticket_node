@@ -1,7 +1,7 @@
 
 import { Router, Response, Request, NextFunction } from "express";
 import { BadRequestError, uploadDir, Uploader, UploaderMiddlewareOptions, requireAuth, CustomError } from "@fadedreams7org1/common";
-import { providerService } from '../../application/provider/provider.service';
+import { providerService } from '@src/application/provider/provider.service';
 
 
 const uploader = new Uploader(uploadDir)

@@ -1,7 +1,7 @@
 
 import { OrderModel } from '@fadedreams7org1/common'
-import { Order } from './order.model'
-import { CreateOrderDto } from '../dtos/order.dto'
+import { Order } from '@src/domain/consumer/order/order.model.ts'
+import { CreateOrderDto } from '@src/domain/consumer/dtos/order.dto.ts'
 
 export class OrderService {
     constructor(

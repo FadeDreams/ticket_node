@@ -1,6 +1,6 @@
 import { Router, Response, Request, NextFunction } from 'express';
 import { requireAuth, CustomError, BadRequestError } from '@fadedreams7org1/common';
-import { consumerService } from '../../application/consumer/consumer.service';
+import { consumerService } from '@src/application/consumer/consumer.service';
 import { Session } from 'express-session';
 interface CustomSession extends Session {
     cartId?: any;

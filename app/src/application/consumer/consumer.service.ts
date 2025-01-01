@@ -1,15 +1,16 @@
 // app/src/consumer/consumer.service.ts
-import { IConsumerService } from './interfaces/consumer.interface'; // Import the interface
-
-
-import { CartService, cartService } from '../../domain/consumer/cart/cart.service'; // Updated path
-import { ItemService, itemService } from '../../domain/provider/item/item.service'; // Updated path
-import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from '../../domain/consumer/dtos/cart.dto'; // Updated path
 import { BadRequestError, NotAuthorizedError } from '@fadedreams7org1/common';
-import { OrderService, orderService } from '../../domain/consumer/order/order.service'; // Updated path
 import Stripe from 'stripe';
-import RedisConnection from '../../infrastructure/persistence/RedisConnection'; // Updated path
-import Logger from '../../infrastructure/logging/Logger'; // Updated path
+
+
+import { IConsumerService } from '@src/application/consumer/interfaces/consumer.interface';
+import { CartService, cartService } from '@src/domain/consumer/cart/cart.service';
+import { ItemService, itemService } from '@src/domain/provider/item/item.service';
+import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from '@src/domain/consumer/dtos/cart.dto';
+import { OrderService, orderService } from '@src/domain/consumer/order/order.service';
+import RedisConnection from '@src/infrastructure/persistence/RedisConnection';
+
+import Logger from '@src/infrastructure/logging/Logger'; // Updated path
 
 const logger = Logger.getLogger();
 

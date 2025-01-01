@@ -1,7 +1,7 @@
 
 import { ItemModel, uploadDir } from "@fadedreams7org1/common";
-import { Item } from "./item.model";
-import { CreateItemDto, UpdateItemDto, DeleteItemDto, AddImagesDto, DeleteImagesDto } from '../dtos/item.dto'
+import { Item } from "@src/domain/provider/item/item.model";
+import { CreateItemDto, UpdateItemDto, DeleteItemDto, AddImagesDto, DeleteImagesDto } from '@src/domain/provider/dtos/item.dto'
 import { BadRequestError, NotAuthorizedError, } from '@fadedreams7org1/common'
 
 import fs from 'fs'
