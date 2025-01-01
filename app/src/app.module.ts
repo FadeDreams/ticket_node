@@ -5,17 +5,18 @@ import cors from 'cors';
 import { json, urlencoded } from 'body-parser';
 import cookieSession from 'cookie-session';
 import { errorHandler, currentUser } from '@fadedreams7org1/common';
-import { authRouters } from './auth/auth.routers';
-import { providerRouters } from './provider/provider.routers';
-import { consumerRouters } from './consumer/consumer.routers'; // Import consumerRouters
-import session from 'express-session';
-import { WinstonLogger } from './winston-logger';
-import expressWinston from 'express-winston';
-import promBundle from 'express-prom-bundle';
-import { AppContext } from './context/AppContext'; // Import AppContext
-import { UrgentState } from './states/UrgentState'; // Import UrgentState
 import RedisConnection from './infrastructure/persistence/RedisConnection';
 import DatabaseConnection from './infrastructure/persistence/DatabaseConnection';
+
+import { authRouters } from './presentation/auth/auth.routes'; // Updated path
+import { providerRouters } from './presentation/provider/provider.routes'; // Updated path
+import { consumerRouters } from './presentation/consumer/consumer.routes'; // Updated path
+import session from 'express-session';
+import { WinstonLogger } from './infrastructure/logging/winston-logger'; // Updated path
+import expressWinston from 'express-winston';
+import promBundle from 'express-prom-bundle';
+import { AppContext } from './common/context/AppContext'; // Updated path
+import { UrgentState } from './common/states/UrgentState'; // Updated path
 
 const metricsMiddleware = promBundle({
     includeMethod: true,
