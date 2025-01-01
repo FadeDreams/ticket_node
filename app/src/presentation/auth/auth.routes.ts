@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { Session, SessionData } from 'express-session'; // Correct import
 import { currentUser, BadRequestError } from '@fadedreams7org1/common';
-import { authService } from './auth.service';
+import { authService } from '../../application/auth/auth.service';
 
 interface ExtendedSession extends Session {
     jwt: string;

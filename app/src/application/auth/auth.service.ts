@@ -1,6 +1,6 @@
 
-import { UserService, userService } from './user/user.service'
-import { AuthDto } from './dtos/auth.dto'
+import { UserService, userService } from '../../domain/auth/user/user.service'
+import { AuthDto } from '../../domain/auth/dtos/auth.dto'; // Updated path
 import { BadRequestError, AuthenticationService } from '@fadedreams7org1/common'
 import { NextFunction } from 'express';
 

@@ -1,15 +1,16 @@
 // app/src/consumer/consumer.service.ts
 import { IConsumerService } from './interfaces/consumer.interface'; // Import the interface
 
-import { CartService, cartService } from './cart/cart.service';
-import { ItemService, itemService } from '../provider/item/item.service';
-import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from './dtos/cart.dto';
+
+import { CartService, cartService } from '../../domain/consumer/cart/cart.service'; // Updated path
+import { ItemService, itemService } from '../../domain/provider/item/item.service'; // Updated path
+import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from '../../domain/consumer/dtos/cart.dto'; // Updated path
 import { BadRequestError, NotAuthorizedError } from '@fadedreams7org1/common';
-import { OrderService, orderService } from './order/order.service';
+import { OrderService, orderService } from '../../domain/consumer/order/order.service'; // Updated path
 import Stripe from 'stripe';
-import RedisConnection from '../infrastructure/persistence/RedisConnection'; // Import RedisConnection
-// import logger from '../infrastructure/logging/Logger'; // Import the logger
-import Logger from '../infrastructure/logging/Logger';
+import RedisConnection from '../../infrastructure/persistence/RedisConnection'; // Updated path
+import Logger from '../../infrastructure/logging/Logger'; // Updated path
+
 const logger = Logger.getLogger();
 
 // Create a single instance of RedisConnection

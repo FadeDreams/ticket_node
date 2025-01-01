@@ -1,5 +1,5 @@
-import { ItemService, itemService } from "./item/item.service";
-import { CreateItemDto, UpdateItemDto, DeleteItemDto, AddImagesDto, DeleteImagesDto } from './dtos/item.dto'
+import { ItemService, itemService } from '../../domain/provider/item/item.service';
+import { CreateItemDto, UpdateItemDto, DeleteItemDto, AddImagesDto, DeleteImagesDto } from '../../domain/provider/dtos/item.dto';
 import { BadRequestError, NotAuthorizedError, } from '@fadedreams7org1/common'
 import { IProviderService } from './interfaces/provider.interface'; // Import the interface
 

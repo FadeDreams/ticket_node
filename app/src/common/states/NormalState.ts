@@ -1,6 +1,6 @@
 import { AppState } from './AppState';
 import { Application } from 'express';
-import { WinstonLogger } from '../winston-logger';
+import { WinstonLogger } from '../../infrastructure/logging/winston-logger';
 import expressWinston from 'express-winston';
 
 export class NormalState implements AppState {

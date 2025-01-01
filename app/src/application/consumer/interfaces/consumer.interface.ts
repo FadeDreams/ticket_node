@@ -1,5 +1,5 @@
 // src/consumer/interfaces/consumer.interface.ts
-import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from '../dtos/cart.dto';
+import { AddItemToCartDto, UpdateCartItemQuantityDto, RemoveItemFromCartDto } from '../../../domain/consumer/dtos/cart.dto';
 import { BadRequestError, NotAuthorizedError } from '@fadedreams7org1/common';
 import Stripe from 'stripe';
 
